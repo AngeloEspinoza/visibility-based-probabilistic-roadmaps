@@ -352,6 +352,21 @@ class Graph():
 		return pygame.draw.circle(surface=map_, color=self.RED, center=self.x_goal, 
 			radius=self.robot_radius)
 
+	def draw_guard_node(self, map_, position):
+		"""Draws the guard node."""
+		return pygame.draw.circle(surface=map_, color=self.BROWN, center=position, 
+			radius=self.robot_radius)
+
+	def draw_connection_node(self, map_, position):
+		"""Draws the connection node."""
+		return pygame.draw.circle(surface=map_, color=self.GREEN, center=position, 
+			radius=self.robot_radius)
+
+	def draw_rejected_node(self, map_, position):
+		"""Draws the rejected node."""
+		return pygame.draw.circle(surface=map_, color=self.YELLOW, center=position, 
+			radius=self.robot_radius)
+
 	def draw_local_planner(self, p1, p2, map_):
 		"""Draws the local planner from node to node."""
 		pygame.draw.line(surface=map_, color=self.BLACK, start_pos=p1.center, end_pos=p2.center)
