@@ -113,7 +113,7 @@ def main():
 
 					if not cross_obstacle1: # Connected to the first component
 						for j in range(i+1, len(guards)):
-							if x_rand.center == guards[j].center:
+							if x_rand == guards[j]:
 								break # Prevents attempting to connect the node with the same node
 							cross_obstacle2 = graph_.cross_obstacle(configuration1=x_rand, 
 								configuration2=guards[j], map_=environment_.map)
@@ -150,7 +150,7 @@ def main():
 						rejection += 1
 						ntry += 1
 						for j in range(i+1, len(guards)):
-							if x_rand.center == guards[j].center:
+							if x_rand == guards[j]:
 								break # Prevents attempting to connect the node with the same node
 							cross_obstacle2 = graph_.cross_obstacle(configuration1=x_rand, 
 								configuration2=guards[j], map_=environment_.map)
@@ -178,15 +178,12 @@ def main():
 					environment_.map.blit(text_surface, x_rand.center)
 
 		if args.show_volume_estimation:	
-			print(f'Estimated volume not yet covered by visibility domains {100*(1/ntry)}%')
-			print(f'Estimated volume covered by visibility domains {100*(1-1/ntry)}%')
+			print(f'Estimated volume not yet covered by visibility domains {100*(1/ntry):.4f}%')
+			print(f'Estimated volume covered by visibility domains {100*(1-1/ntry):.4f}%')
 			args.show_volume_estimation = False
 
-		for i in range(len(guards)-1):
-			distance = graph_.euclidean_distance(p1=initial.center, p2=guards[i].center)
-			cross_obstacle = graph_.cross_obstacle(configuration1=x_rand, configuration2=guards[i], 
-				map_=environment_.map)
-
+		configurations += guards + connections
+		graph_.query(initial, goal, configurations, environment_.map)
 		pygame.display.update()
 
 	pygame.quit()

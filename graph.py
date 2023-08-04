@@ -11,9 +11,9 @@ class Graph():
 	Attributes
 	----------
 	start : tuple
-		Initial position of the tree in X and Y respectively.
+		Initial position of the graph in X and Y respectively.
 	goal : tuple
-		End position of the tree in X and Y respectively.
+		End position of the graph in X and Y respectively.
 	map_dimensions : tuple
 		Map width and height in pixels.
 	"""
@@ -40,7 +40,7 @@ class Graph():
 		self.TURQUOISE = (64, 224, 208)
 		self.FUCSIA = (255, 0, 255)
 
-	def is_free(self, point, obstacles, tree=None):
+	def is_free(self, point, obstacles):
 		"""Checks if a configuration is colliding with an obstacle.
 
 		When dealing with obstacles it is necessary to check 
@@ -52,8 +52,6 @@ class Graph():
 			Point to be checked.
 		obstacles : pygame.Rect
 			Rectangle obstacle.
-		tree : list
-			Tree containing all the coordinate nodes.
 
 		Returns
 		-------
@@ -172,9 +170,9 @@ class Graph():
 		Parameters
 		----------
 		p1 : tuple
-			Initial Point.
+			Initial point.
 		p2 : tuple
-			End Point.
+			End point.
 
 		Returns
 		-------
@@ -413,3 +411,47 @@ class Graph():
 			# Draw path to goal, and the robot movement constantly
 			self.move_robot(position=robot_position, map_=environment.map)
 			self.refresh_screen(map_=environment.map, seconds=0.02)
+
+	def query(self, initial, goal, configurations, map_):
+		"""Adds the initial and goal configurations to the roadmap.
+
+		Given the initial and goal configurations, it searches in the 
+		roadmap the nearest and checks whether it can be connected or 
+		not. If the connection is not possible, the next nearest node
+		is checked.
+
+		Parameters
+		----------
+		initial : tuple
+			Initial configuration.
+		goal : tuple
+			End configuration.
+
+		Returns
+		-------
+		None
+		"""
+		initial_distances = [(self.euclidean_distance(p1=initial.center, \
+			p2=configurations[i].center), configurations[i]) for i in range(len(configurations)) \
+			if configurations[i].center != initial.center]
+		goal_distances = [(self.euclidean_distance(p1=goal.center, \
+			p2=configurations[i].center), configurations[i]) for i in range(len(configurations)) \
+			if configurations[i].center != goal.center]
+		initial_sorted_distances = sorted(initial_distances)
+		goal_sorted_distances = sorted(goal_distances)
+
+		for i in range(len(initial_sorted_distances)-1):
+			cross_obstacle = self.cross_obstacle(configuration1=initial, 
+				configuration2=initial_sorted_distances[i][1], map_=map_)
+			if not cross_obstacle:
+				self.draw_local_planner(p1=initial, p2=initial_sorted_distances[i][1], \
+					map_=map_)
+				break
+
+		for i in range(len(goal_sorted_distances)-1):
+			cross_obstacle = self.cross_obstacle(configuration1=goal, 
+				configuration2=goal_sorted_distances[i][1], map_=map_)
+			if not cross_obstacle:
+				self.draw_local_planner(p1=goal, p2=goal_sorted_distances[i][1], \
+					map_=map_)
+				break
