@@ -32,6 +32,8 @@ class Environment():
 
 		self.obstacles = []
 		
+		# Font and a counter for the number of the node
+		self.font = pygame.font.SysFont('Comic Sans MS', 30)	
 
 	def make_obstacles_T(self, initial_point):
 		"""
@@ -104,3 +106,7 @@ class Environment():
 				obstacles.append(side)
 
 		return obstacles				
+
+	def draw_node_number(self, number, point):
+		text_surface = self.font.render(str(number), False, (0, 0, 0))		
+		self.map.blit(text_surface, point)

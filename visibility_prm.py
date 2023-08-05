@@ -61,13 +61,13 @@ def main():
 
 	# Number of failures before the insertion of a new guard node
 	ntry = 0
-
-	# Font and a counter for the number of the node
-	font = pygame.font.SysFont('Comic Sans MS', 30)
-	nds = 0
+	node_number = 0
 
 	repeated_guards = []
 	is_found_repeated = False
+
+	len_guards = len(guards)
+	len_connections = len(connections)
 
 	while run:
 		clock.tick(environment_.FPS) 
@@ -84,7 +84,6 @@ def main():
 			is_connected = False
 
 			if collision_free:
-				text_surface = font.render(str(nds), False, (0, 0, 0))
 				if args.show_random_nodes:
 					graph_.draw_random_node(map_=environment_.map)
 
@@ -107,7 +106,6 @@ def main():
 
 				for i in range(len(guards)):
 					rejection = 0
-					text_surface = font.render(str(nds), False, (0, 0, 0))
 					cross_obstacle1 = graph_.cross_obstacle(configuration1=x_rand, 
 						configuration2=guards[i], map_=environment_.map)
 
@@ -172,18 +170,26 @@ def main():
 									graph_.draw_rejected_node(map_=environment_.map, 
 										position=x_rand.center)
 
-				nds += 1
+				node_number += 1
 				pygame.display.update()
+				is_change_made = len(guards) > len_guards or len(connections) > len_connections
+
 				if args.show_enumerated_nodes:
-					environment_.map.blit(text_surface, x_rand.center)
+					if not args.show_rejected_nodes and is_change_made:
+						len_guards = len(guards)
+						len_connections = len(connections)
+						environment_.draw_node_number(number=node_number, point=x_rand.center)
+					elif args.show_rejected_nodes:
+						environment_.draw_node_number(number=node_number, point=x_rand.center)
 
 		if args.show_volume_estimation:	
 			print(f'Estimated volume not yet covered by visibility domains {100*(1/ntry):.4f}%')
 			print(f'Estimated volume covered by visibility domains {100*(1-1/ntry):.4f}%')
 			args.show_volume_estimation = False
 
+		# Merge guard and connection nodes, and query the initial and goal configurations
 		configurations += guards + connections
-		graph_.query(initial, goal, configurations, environment_.map)
+		graph_.query(init=initial, goal=goal, configurations=configurations, map_=environment_.map)
 		pygame.display.update()
 
 	pygame.quit()

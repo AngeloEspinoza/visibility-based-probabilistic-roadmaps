@@ -412,7 +412,7 @@ class Graph():
 			self.move_robot(position=robot_position, map_=environment.map)
 			self.refresh_screen(map_=environment.map, seconds=0.02)
 
-	def query(self, initial, goal, configurations, map_):
+	def query(self, init, goal, configurations, map_):
 		"""Adds the initial and goal configurations to the roadmap.
 
 		Given the initial and goal configurations, it searches in the 
@@ -431,9 +431,9 @@ class Graph():
 		-------
 		None
 		"""
-		initial_distances = [(self.euclidean_distance(p1=initial.center, \
+		initial_distances = [(self.euclidean_distance(p1=init.center, \
 			p2=configurations[i].center), configurations[i]) for i in range(len(configurations)) \
-			if configurations[i].center != initial.center]
+			if configurations[i].center != init.center]
 		goal_distances = [(self.euclidean_distance(p1=goal.center, \
 			p2=configurations[i].center), configurations[i]) for i in range(len(configurations)) \
 			if configurations[i].center != goal.center]
@@ -441,10 +441,10 @@ class Graph():
 		goal_sorted_distances = sorted(goal_distances)
 
 		for i in range(len(initial_sorted_distances)-1):
-			cross_obstacle = self.cross_obstacle(configuration1=initial, 
+			cross_obstacle = self.cross_obstacle(configuration1=init, 
 				configuration2=initial_sorted_distances[i][1], map_=map_)
 			if not cross_obstacle:
-				self.draw_local_planner(p1=initial, p2=initial_sorted_distances[i][1], \
+				self.draw_local_planner(p1=init, p2=initial_sorted_distances[i][1], \
 					map_=map_)
 				break
 
