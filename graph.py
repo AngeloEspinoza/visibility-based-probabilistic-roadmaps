@@ -308,6 +308,7 @@ class Graph():
 		self.generate_smooth_path()
 
 	def generate_smooth_path(self):
+		"""Sections the path the pieces by interpolating."""
 		for i in range(len(self.path_coordinates)-1):
 			interpolation = self.interpolation(p1=self.path_coordinates[i],
 				p2=self.path_coordinates[i+1])
@@ -317,17 +318,19 @@ class Graph():
 		self.smooth = [coord for coords in self.smooth_path[::-1] for coord in coords]
 		self.smooth_path = []
 	
-	def draw_path_to_goal(self, map_, environment, obstacles):
+	def draw_path_to_goal(self, environment, obstacles):	    
 		"""Draws the path from the x_goal node to the x_init node."""
-		self.draw_initial_node(map_=map_)
-		self.draw_goal_node(map_=map_)
+		self.draw_initial_node(map_=environment.map) 
+		self.draw_goal_node(map_=environment.map)
 
 		if obstacles != []:
 			environment.draw_obstacles()
 
 		for i in range(len(self.path_coordinates)-1):
-			pygame.draw.line(surface=map_, color=self.RED, start_pos=self.path_coordinates[i],
-				end_pos=self.path_coordinates[i+1], width=4)
+			pygame.draw.line(surface=environment.map, color=self.RED,
+			 	start_pos=self.path_coordinates[i], end_pos=self.path_coordinates[i+1], width=4)
+
+		self.refresh_screen(map_=environment.map, seconds=3)
 
 	def heuristic(self, p1, p2):
 		"""Heuristic distance from point to point."""
@@ -365,21 +368,24 @@ class Graph():
 
 	def draw_local_planner(self, p1, p2, map_):
 		"""Draws the local planner from node to node."""
-		pygame.draw.line(surface=map_, color=self.BLACK, start_pos=p1.center, end_pos=p2.center)
+		try:
+			pygame.draw.line(surface=map_, color=self.BLACK, start_pos=p1.center, end_pos=p2.center)
+		except AttributeError:
+			pygame.draw.line(surface=map_, color=self.BLACK, start_pos=p1, end_pos=p2)
 
 	def move_robot(self, position, map_):
 		"""Draws the robot moving at the given position."""
 		pygame.draw.circle(surface=map_, color=(0, 0, 255),	center=position, 
 			radius=self.robot_radius)
 
-	def draw_roadmap(self, configurations, nears, map_, k):
+	def draw_roadmap(self, map_):
 		"""Draws the roadmap constantly. Used to display it in an infinite loop."""
 		self.draw_initial_node(map_=map_)
 		self.draw_goal_node(map_=map_)
 
-		for i, near in enumerate(nears):
-			for j in range(len(near)):
-				self.draw_local_planner(p1=configurations[i], p2=nears[i][j], map_=map_)
+		for node, neighbors in self.neighbors.items():
+			for neighbor in neighbors:
+				self.draw_local_planner(p1=node, p2=neighbor, map_=map_)
 
 	def refresh_screen(self, map_, seconds):
 		"""Updates the screen information and waits the given seconds."""
@@ -390,7 +396,7 @@ class Graph():
 		pygame.time.delay(seconds)
 		map_.fill(self.WHITE)
 
-	def draw_trajectory(self, configurations, nears, environment, obstacles, k, keep_roadmap):
+	def draw_trajectory(self, configurations, environment, obstacles, keep_roadmap):
 		"""Draws the robot moving in the map."""
 		for i in range(len(self.smooth)):
 			robot_position = self.smooth[i]
@@ -399,8 +405,7 @@ class Graph():
 				environment.draw_obstacles()
 
 			if keep_roadmap:
-				self.draw_roadmap(configurations=configurations, nears=nears, map_=environment.map,
-					k=k)
+				self.draw_roadmap(map_=environment.map)
 
 			# Draw inital and final robot configuration constantly
 			self.draw_initial_node(map_=environment.map)
@@ -432,7 +437,7 @@ class Graph():
 		initial_distances = [(self.euclidean_distance(p1=init.center, \
 			p2=configurations[i].center), configurations[i]) for i in range(len(configurations)) \
 			if configurations[i].center != init.center]
-		goal_distances = [(self.euclidean_distance(p1=goal.center, \
+		goal_distances = [(self.euclidean_distance(p1=goal.center, 
 			p2=configurations[i].center), configurations[i]) for i in range(len(configurations)) \
 			if configurations[i].center != goal.center]
 		initial_sorted_distances = sorted(initial_distances)
@@ -444,8 +449,7 @@ class Graph():
 			if not cross_obstacle:
 				# Add the neighbor of the initial node
 				self.neighbors.update({init.center: [initial_sorted_distances[i][1].center]})
-				self.draw_local_planner(p1=init, p2=initial_sorted_distances[i][1], \
-					map_=map_)
+				self.draw_local_planner(p1=init, p2=initial_sorted_distances[i][1], map_=map_)
 				break
 
 		for i in range(len(goal_sorted_distances)-1):
@@ -454,6 +458,5 @@ class Graph():
 			if not cross_obstacle:
 				# Add the neighbor of the goal node
 				self.neighbors.update({goal_sorted_distances[i][1].center: [goal.center]})
-				self.draw_local_planner(p1=goal, p2=goal_sorted_distances[i][1], \
-					map_=map_)
+				self.draw_local_planner(p1=goal, p2=goal_sorted_distances[i][1], map_=map_)
 				break

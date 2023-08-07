@@ -27,6 +27,8 @@ parser.add_argument('-sve', '--show_volume_estimation', type=bool,
 parser.add_argument('-M', '--M', type=int, metavar='', required=False, default=10,
 	help='Maximum number of failures before allowed before inserting a new guard node into the \
 	roadmap ')
+parser.add_argument('-kr', '--keep_roadmap', type=bool, action=argparse.BooleanOptionalAction, 
+	metavar='', required=False, help='Keeps the tree while the robot is moving towards the goal')
 parser.add_argument('-r', '--radius', type=int, metavar='', required=False, default=10,
 	help='Set the robot radius')
 args = parser.parse_args()
@@ -58,6 +60,7 @@ def main():
 	environment_.make_obstacles()
 	obstacles = environment_.draw_obstacles() if args.obstacles else []
 	graph_.obstacles = obstacles
+
 	# Number of failures before the insertion of a new guard node
 	ntry = 0
 	node_number = 0
@@ -141,7 +144,8 @@ def main():
 								connections.append(x_rand)
 
 								# Add the neighbors of the connector node
-								graph_.neighbors.update({x_rand.center: [guards[i].center, guards[j].center]})
+								graph_.neighbors.update({x_rand.center: \
+									[guards[i].center, guards[j].center]})
 
 								# Keep track of the guardians neighbors
 								hanging_guardians.append([guards[i].center, x_rand.center])
@@ -217,9 +221,12 @@ def main():
 		graph_.neighbors.update(temp_dictionary)
 		graph_.query(init=initial, goal=goal, configurations=configurations, map_=environment_.map)
 
-		a_star = (graph_.a_star(nodes=configurations, map_=environment_.map))
-		graph_.draw_path_to_goal(map_=environment_.map, environment=environment_,
-				 obstacles=obstacles)
+		# Find shortest path, perform animation towards goal, and draw the robot trail
+		graph_.a_star(nodes=configurations, map_=environment_.map)
+		graph_.draw_roadmap(map_=environment_.map)
+		graph_.draw_trajectory(configurations=configurations, environment=environment_,
+			obstacles=obstacles, keep_roadmap=args.keep_roadmap)
+		graph_.draw_path_to_goal(environment=environment_, obstacles=obstacles)
 		pygame.display.update()
 
 	pygame.quit()
