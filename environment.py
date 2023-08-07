@@ -26,7 +26,7 @@ class Environment():
 
 		# Window settings
 		self.FPS = 120
-		pygame.display.set_caption('PRM')
+		pygame.display.set_caption('Visibility-based PRM')
 		self.map = pygame.display.set_mode(size=(self.WIDTH, self.HEIGHT))
 		self.map.fill(self.WHITE)
 
