@@ -28,6 +28,8 @@ class Graph():
 
 		self.obstacles = None
 		self.smooth_path = []
+		self.is_first_query = False
+
 
 		# Colors 
 		self.WHITE = (255, 255, 255)
@@ -460,3 +462,7 @@ class Graph():
 				self.neighbors.update({goal_sorted_distances[i][1].center: [goal.center]})
 				self.draw_local_planner(p1=goal, p2=goal_sorted_distances[i][1], map_=map_)
 				break
+
+		if not self.is_first_query:
+			self.refresh_screen(map_=map_, seconds=2)
+			self.is_first_query = True

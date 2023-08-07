@@ -99,19 +99,20 @@ def main():
 				if len(guards) == 0:
 					guards.append(x_rand)
 					graph_.draw_guard_node(map_=environment_.map, position=x_rand.center)
-
+					continue
 				elif len(guards) == 1:
-					for i in range(len(guards)):
-						cross_obstacle1 = graph_.cross_obstacle(configuration1=x_rand,
-							configuration2=guards[i], map_=environment_.map)
+					# for i in range(len(guards)):
+					cross_obstacle1 = graph_.cross_obstacle(configuration1=x_rand,
+						configuration2=guards[0], map_=environment_.map)
 
-						if cross_obstacle1:
-							guards.append(x_rand)
-							graph_.draw_guard_node(map_=environment_.map, position=x_rand.center)
-						else:
-							if not is_connected and args.show_rejected_nodes:
-								graph_.draw_rejected_node(map_=environment_.map,
-									position=x_rand.center)
+					if cross_obstacle1:
+						guards.append(x_rand)
+						graph_.draw_guard_node(map_=environment_.map, position=x_rand.center)
+					else:
+						ntry += 1
+						if not is_connected and args.show_rejected_nodes:
+							graph_.draw_rejected_node(map_=environment_.map,
+								position=x_rand.center)
 
 				for i in range(len(guards)):
 					rejection = 0
@@ -202,6 +203,8 @@ def main():
 
 		# Merge the guardians and their neighbors in a dictionary 
 		if not is_track_finished:
+			# Merge guard and connection nodes, and query the initial and goal configurations
+			configurations += guards + connections
 			for guard in hanging_guardians:
 			    key = guard[0]
 			    value = guard[1:]
@@ -216,8 +219,6 @@ def main():
 			print(f'Estimated volume covered by visibility domains {100*(1-1/ntry):.4f}%')
 			args.show_volume_estimation = False
 
-		# Merge guard and connection nodes, and query the initial and goal configurations
-		configurations += guards + connections
 		graph_.neighbors.update(temp_dictionary)
 		graph_.query(init=initial, goal=goal, configurations=configurations, map_=environment_.map)
 
