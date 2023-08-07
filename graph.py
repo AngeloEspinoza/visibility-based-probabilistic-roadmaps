@@ -329,8 +329,6 @@ class Graph():
 			pygame.draw.line(surface=map_, color=self.RED, start_pos=self.path_coordinates[i],
 				end_pos=self.path_coordinates[i+1], width=4)
 
-		self.refresh_screen(map_=environment.map, seconds=3)
-
 	def heuristic(self, p1, p2):
 		"""Heuristic distance from point to point."""
 		return self.euclidean_distance(p1, p2)
@@ -444,6 +442,8 @@ class Graph():
 			cross_obstacle = self.cross_obstacle(configuration1=init, 
 				configuration2=initial_sorted_distances[i][1], map_=map_)
 			if not cross_obstacle:
+				# Add the neighbor of the initial node
+				self.neighbors.update({init.center: [initial_sorted_distances[i][1].center]})
 				self.draw_local_planner(p1=init, p2=initial_sorted_distances[i][1], \
 					map_=map_)
 				break
@@ -452,6 +452,8 @@ class Graph():
 			cross_obstacle = self.cross_obstacle(configuration1=goal, 
 				configuration2=goal_sorted_distances[i][1], map_=map_)
 			if not cross_obstacle:
+				# Add the neighbor of the goal node
+				self.neighbors.update({goal_sorted_distances[i][1].center: [goal.center]})
 				self.draw_local_planner(p1=goal, p2=goal_sorted_distances[i][1], \
 					map_=map_)
 				break

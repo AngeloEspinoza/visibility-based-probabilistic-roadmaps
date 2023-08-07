@@ -58,7 +58,6 @@ def main():
 	environment_.make_obstacles()
 	obstacles = environment_.draw_obstacles() if args.obstacles else []
 	graph_.obstacles = obstacles
-
 	# Number of failures before the insertion of a new guard node
 	ntry = 0
 	node_number = 0
@@ -68,6 +67,13 @@ def main():
 
 	len_guards = len(guards)
 	len_connections = len(connections)
+
+	connectors = 0
+
+	# To keep track and later merge the hanging guardian nodes
+	hanging_guardians = []
+	temp_dictionary = {}
+	is_track_finished = False # Avoid overflow of the dictionary
 
 	while run:
 		clock.tick(environment_.FPS) 
@@ -133,6 +139,14 @@ def main():
 								repeated_guards.append([guards[i], guards[j]])
 								is_connected = True
 								connections.append(x_rand)
+
+								# Add the neighbors of the connector node
+								graph_.neighbors.update({x_rand.center: [guards[i].center, guards[j].center]})
+
+								# Keep track of the guardians neighbors
+								hanging_guardians.append([guards[i].center, x_rand.center])
+								hanging_guardians.append([guards[j].center, x_rand.center])
+
 								graph_.draw_connection_node(map_=environment_.map, 
 									position=x_rand.center)
 								graph_.draw_local_planner(p1=x_rand, p2=guards[i], 
@@ -182,6 +196,17 @@ def main():
 					elif args.show_rejected_nodes:
 						environment_.draw_node_number(number=node_number, point=x_rand.center)
 
+		# Merge the guardians and their neighbors in a dictionary 
+		if not is_track_finished:
+			for guard in hanging_guardians:
+			    key = guard[0]
+			    value = guard[1:]
+			    if key in temp_dictionary:
+			        temp_dictionary[key].extend(value)
+			    else:
+			        temp_dictionary[key] = value
+			is_track_finished = True
+
 		if args.show_volume_estimation:	
 			print(f'Estimated volume not yet covered by visibility domains {100*(1/ntry):.4f}%')
 			print(f'Estimated volume covered by visibility domains {100*(1-1/ntry):.4f}%')
@@ -189,7 +214,12 @@ def main():
 
 		# Merge guard and connection nodes, and query the initial and goal configurations
 		configurations += guards + connections
+		graph_.neighbors.update(temp_dictionary)
 		graph_.query(init=initial, goal=goal, configurations=configurations, map_=environment_.map)
+
+		a_star = (graph_.a_star(nodes=configurations, map_=environment_.map))
+		graph_.draw_path_to_goal(map_=environment_.map, environment=environment_,
+				 obstacles=obstacles)
 		pygame.display.update()
 
 	pygame.quit()
