@@ -30,7 +30,6 @@ class Graph():
 		self.smooth_path = []
 		self.is_first_query = False
 
-
 		# Colors 
 		self.WHITE = (255, 255, 255)
 		self.BLACK = (0, 0, 0)
@@ -277,26 +276,29 @@ class Graph():
 				self.reconstruct_path(came_from, current, map_)
 				return True
 			
-			# k-nearest
-			for neighbor in self.neighbors[current]:
-				# Get the correspondant rectangle of the center point for the 
-				# k-nearest neighbor configuration
-				for node in nodes:
-					if node.center == neighbor:
-						neighbor_ = node
+			try:
+				# k-nearest
+				for neighbor in self.neighbors[current]:
+					# Get the correspondant rectangle of the center point for the
+					# k-nearest neighbor configuration
+					for node in nodes:
+						if node.center == neighbor:
+							neighbor_ = node
 
-				temp_g_score = g_score[current] + self.euclidean_distance(current, neighbor)
-				cross_obstacle = self.cross_obstacle(configuration1=current_, 
-					configuration2=neighbor_, map_=map_)
+					temp_g_score = g_score[current] + self.euclidean_distance(current, neighbor)
+					cross_obstacle = self.cross_obstacle(configuration1=current_,
+						configuration2=neighbor_, map_=map_)
 
-				if temp_g_score < g_score[neighbor] and not cross_obstacle:
-					came_from[neighbor] = current
-					g_score[neighbor] = temp_g_score
-					f_score[neighbor] = temp_g_score + self.heuristic(neighbor, end)
+					if temp_g_score < g_score[neighbor] and not cross_obstacle:
+						came_from[neighbor] = current
+						g_score[neighbor] = temp_g_score
+						f_score[neighbor] = temp_g_score + self.heuristic(neighbor, end)
 
-					if neighbor not in open_set_hash:
-						open_set.put((f_score[neighbor], neighbor))
-						open_set_hash.add(neighbor)
+						if neighbor not in open_set_hash:
+							open_set.put((f_score[neighbor], neighbor))
+							open_set_hash.add(neighbor)
+			except KeyError as error:
+				raise KeyError('Roadmap not sufficiently connected. Try increasing the maximum number of failures. e.g. python3 visibility_prm.py --obstacles -M 30')
 
 	def reconstruct_path(self, came_from, current, map_):
 		"""Reconstruct the path from point A to B."""
