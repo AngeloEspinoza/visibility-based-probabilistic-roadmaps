@@ -23,7 +23,7 @@ parser.add_argument('-sen', '--show_enumerated_nodes', type=bool,
 	help='Show the node enumerated in the order it was sampled')
 parser.add_argument('-sve', '--show_volume_estimation', type=bool, 
 	action=argparse.BooleanOptionalAction, metavar='', required=False, default=True,
-	help='Show the node enumerated in the order it was sampled')
+	help='Show the volume covered by visibility domains, and the volume not covered yet')
 parser.add_argument('-M', '--M', type=int, metavar='', required=False, default=10,
 	help='Maximum number of failures before allowed before inserting a new guard node into the \
 	roadmap ')
