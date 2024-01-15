@@ -8,6 +8,9 @@ A 2D simulation in the framework Pygame of the paper [Visibility-based Probabili
 The environment has 2 non-convex obstacles. Key asspects of the algorithm such as the the number of failures before the insertion of a new guard node can be
 modified, as well as the total volume of $\mathcal{C}_{free}$ covered by the visibility domains of the nodes.
 
+### Nodes
+As for the nodes, the guardian nodes $`\mathbf{x}_{guard}`$ are in color brown, meanwhile the connection nodes $`\mathbf{x}_{connect}`$ are in color green. The initial node $`\mathbf{x}_{init}`$ is in color blue, and the goal node $`\mathbf{x}_{goal}`$ is in color red.
+
 ## Usage 
 ```
 usage: visibility_prm.py [-h] [-o | --obstacles | --no-obstacles] [-init  [...]] [-goal  [...]] [-srn | --show_random_nodes | --no-show_random_nodes] [-srjn | --show_rejected_nodes | --no-show_rejected_nodes]
