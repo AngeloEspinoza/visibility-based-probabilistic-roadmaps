@@ -86,7 +86,7 @@ class Environment():
 		return obstacle
 
 	def make_obstacles(self):
-		"""Generate the obstacles to be placed on the final map."""
+		"""Generates the obstacles to be placed on the final map."""
 		obstacle1 = self.make_obstacles_T(initial_point=(350, 200))
 		obstacle2 = self.make_obstacles_L(initial_point=(150, 20))
 
@@ -96,7 +96,7 @@ class Environment():
 		return self.obstacles
 
 	def draw_obstacles(self):
-		"""Draw each side of the obstacles."""
+		"""Draws each side of the obstacles."""
 		obstacles = []
 
 		for obstacle in self.obstacles:
@@ -108,5 +108,6 @@ class Environment():
 		return obstacles				
 
 	def draw_node_number(self, number, point):
+		"""Draws a number next to the node."""
 		text_surface = self.font.render(str(number), False, (0, 0, 0))		
 		self.map.blit(text_surface, point)
